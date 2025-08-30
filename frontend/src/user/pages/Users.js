@@ -12,10 +12,8 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const responseData = await sendRequest(
-          'http://localhost:5000/api/users'
-        );
-
+        // relative path; the hook adds API_BASE
+        const responseData = await sendRequest('/api/users');
         setLoadedUsers(responseData.users);
       } catch (err) {}
     };
