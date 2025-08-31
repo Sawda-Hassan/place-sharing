@@ -1,8 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-// Pick backend URL from env (Render in prod, localhost in dev)
-const API_BASE =
-  process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const RAW_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// remove any trailing slashes so `${API_BASE}/api` is clean
+const API_BASE = RAW_BASE.replace(/\/+$/, '');
 
 export const useHttpClient = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,27 +16,38 @@ export const useHttpClient = () => {
       activeHttpRequests.current.push(httpAbortCtrl);
 
       try {
-        const response = await fetch(`${API_BASE}${url}`, {
+        const fullUrl = `${API_BASE}${url}`;
+        console.log('[HTTP]', fullUrl, method); // 👈 verify what you're calling
+
+        const res = await fetch(fullUrl, {
           method,
           body,
           headers,
           signal: httpAbortCtrl.signal
         });
 
-        const responseData = await response.json();
+        const type = res.headers.get('content-type') || '';
+        let data = null;
 
-        activeHttpRequests.current = activeHttpRequests.current.filter(
-          (reqCtrl) => reqCtrl !== httpAbortCtrl
-        );
+        if (res.status !== 204) {
+          if (type.includes('application/json')) {
+            data = await res.json();
+          } else {
+            const text = await res.text();
+            try { data = JSON.parse(text); } catch { data = { message: text }; }
+          }
+        }
 
-        if (!response.ok) {
-          throw new Error(responseData.message || 'Request failed!');
+        activeHttpRequests.current = activeHttpRequests.current.filter(c => c !== httpAbortCtrl);
+
+        if (!res.ok) {
+          throw new Error((data && data.message) || `HTTP ${res.status}`);
         }
 
         setIsLoading(false);
-        return responseData;
+        return data;
       } catch (err) {
-        setError(err.message || 'Something went wrong, please try again.');
+        setError(err.message || 'Network error');
         setIsLoading(false);
         throw err;
       }
@@ -47,9 +58,7 @@ export const useHttpClient = () => {
   const clearError = () => setError(null);
 
   useEffect(() => {
-    return () => {
-      activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
-    };
+    return () => activeHttpRequests.current.forEach(a => a.abort());
   }, []);
 
   return { isLoading, error, sendRequest, clearError };

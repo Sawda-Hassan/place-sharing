@@ -5,10 +5,7 @@ import Input from '../../shared/components/FormElements/Input';
 import Button from '../../shared/components/FormElements/Button';
 import ErrorModal from '../../shared/components/UIElements/ErrorModal';
 import LoadingSpinner from '../../shared/components/UIElements/LoadingSpinner';
-import {
-  VALIDATOR_REQUIRE,
-  VALIDATOR_MINLENGTH
-} from '../../shared/util/validators';
+import { VALIDATOR_REQUIRE, VALIDATOR_MINLENGTH } from '../../shared/util/validators';
 import { useForm } from '../../shared/hooks/form-hook';
 import { useHttpClient } from '../../shared/hooks/http-hook';
 import { AuthContext } from '../../shared/context/auth-context';
@@ -19,29 +16,20 @@ const NewPlace = () => {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [formState, inputHandler] = useForm(
     {
-      title: {
-        value: '',
-        isValid: false
-      },
-      description: {
-        value: '',
-        isValid: false
-      },
-      address: {
-        value: '',
-        isValid: false
-      }
+      title: { value: '', isValid: false },
+      description: { value: '', isValid: false },
+      address: { value: '', isValid: false }
     },
     false
   );
 
   const history = useHistory();
 
-  const placeSubmitHandler = async event => {
+  const placeSubmitHandler = async (event) => {
     event.preventDefault();
     try {
       await sendRequest(
-        'http://localhost:5000/api/places',
+        `/api/places`,                                      // 👈 relative
         'POST',
         JSON.stringify({
           title: formState.inputs.title.value,
@@ -49,9 +37,12 @@ const NewPlace = () => {
           address: formState.inputs.address.value,
           creator: auth.userId
         }),
-        { 'Content-Type': 'application/json' }
+        {
+          'Content-Type': 'application/json',
+          ...(auth.token ? { Authorization: 'Bearer ' + auth.token } : {})
+        }
       );
-      history.push('/');
+      history.push('/' + auth.userId + '/places');
     } catch (err) {}
   };
 

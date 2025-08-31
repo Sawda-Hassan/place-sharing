@@ -22,76 +22,61 @@ const Auth = () => {
 
   const [formState, inputHandler, setFormData] = useForm(
     {
-      email: {
-        value: '',
-        isValid: false
-      },
-      password: {
-        value: '',
-        isValid: false
-      }
+      email: { value: '', isValid: false },
+      password: { value: '', isValid: false }
     },
     false
   );
 
   const switchModeHandler = () => {
     if (!isLoginMode) {
+      // going to LOGIN: remove name
       setFormData(
-        {
-          ...formState.inputs,
-          name: undefined
-        },
+        { ...formState.inputs, name: undefined },
         formState.inputs.email.isValid && formState.inputs.password.isValid
       );
     } else {
+      // going to SIGNUP: add name
       setFormData(
-        {
-          ...formState.inputs,
-          name: {
-            value: '',
-            isValid: false
-          }
-        },
+        { ...formState.inputs, name: { value: '', isValid: false } },
         false
       );
     }
-    setIsLoginMode(prevMode => !prevMode);
+    setIsLoginMode(prev => !prev);
   };
 
-  const authSubmitHandler = async event => {
+  const authSubmitHandler = async (event) => {
     event.preventDefault();
 
     if (isLoginMode) {
       try {
-        const responseData = await sendRequest(
-          'http://localhost:5000/api/users/login',
+        const data = await sendRequest(
+          `/api/users/login`, // 👈 relative
           'POST',
           JSON.stringify({
             email: formState.inputs.email.value,
             password: formState.inputs.password.value
           }),
-          {
-            'Content-Type': 'application/json'
-          }
+          { 'Content-Type': 'application/json' }
         );
-        auth.login(responseData.user.id);
+        // if your backend returns token, prefer login(id, token)
+        if (data.token) auth.login(data.user.id, data.token);
+        else auth.login(data.user.id);
       } catch (err) {}
     } else {
       try {
-        const responseData = await sendRequest(
-          'http://localhost:5000/api/users/signup',
+        const data = await sendRequest(
+          `/api/users/signup`, // 👈 relative
           'POST',
           JSON.stringify({
             name: formState.inputs.name.value,
             email: formState.inputs.email.value,
             password: formState.inputs.password.value
           }),
-          {
-            'Content-Type': 'application/json'
-          }
+          { 'Content-Type': 'application/json' }
         );
-
-        auth.login(responseData.user.id);
+        if (data.token) auth.login(data.user.id, data.token);
+        else auth.login(data.user.id);
       } catch (err) {}
     }
   };

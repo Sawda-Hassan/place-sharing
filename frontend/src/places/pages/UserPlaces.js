@@ -9,14 +9,13 @@ import { useHttpClient } from '../../shared/hooks/http-hook';
 const UserPlaces = () => {
   const [loadedPlaces, setLoadedPlaces] = useState();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-
   const userId = useParams().userId;
 
   useEffect(() => {
     const fetchPlaces = async () => {
       try {
         const responseData = await sendRequest(
-          `http://localhost:5000/api/places/user/${userId}`
+          `/api/places/user/${userId}`  // 👈 relative
         );
         setLoadedPlaces(responseData.places);
       } catch (err) {}
@@ -24,10 +23,8 @@ const UserPlaces = () => {
     fetchPlaces();
   }, [sendRequest, userId]);
 
-  const placeDeletedHandler = deletedPlaceId => {
-    setLoadedPlaces(prevPlaces =>
-      prevPlaces.filter(place => place.id !== deletedPlaceId)
-    );
+  const placeDeletedHandler = (deletedPlaceId) => {
+    setLoadedPlaces((prevPlaces) => prevPlaces.filter(p => p.id !== deletedPlaceId));
   };
 
   return (
