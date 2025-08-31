@@ -1,0 +1,43 @@
+# 📍 Place Sharing App  
+
+A full-stack **MERN (MongoDB, Express.js, React, Node.js)** application where users can share places, view other users’ places, and manage their own.  
+
+## 🚀 Live Demo
+- **Frontend (Vercel):** https://place-sharing-mfou.vercel.app/
+- **Backend (Render):** https://place-sharing-8.onrender.com
+
+---
+
+## 🛠️ Tech Stack
+- **Frontend:** React (Create React App), React Router, Context API  
+- **Backend:** Node.js, Express.js, MongoDB, Mongoose  
+- **Deployment:** Vercel (frontend), Render (backend)  
+- **Other Tools:** bcryptjs (auth), JWT (authentication), CORS  
+
+---
+
+## ✨ Features
+- 👤 User Authentication (signup & login with JWT)  
+- 🏞️ Add Places with title, description, and image  
+- 👀 View Other Users’ Places  
+- ✏️ Edit & Delete Your Own Places  
+- 🌐 Deployed Full-stack (frontend + backend working together)  
+
+---
+
+## 📦 Installation  
+
+Clone the repository:  
+```bash
+git clone https://github.com/your-username/place-sharing-app.git
+cd place-sharing-app
+
+🔹 Backend Setup
+   cd backend
+   npm install
+   npm start
+
+ 🔹 Frontend Setup
+     cd frontend
+    npm install
+    npm start
